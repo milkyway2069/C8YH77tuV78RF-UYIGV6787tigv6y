@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Video Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for font and background */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Dark black background */
+            color: #e2e8f0; /* Light text for contrast */
+        }
+        /* Style for video thumbnails */
+        .video-thumbnail-card {
+            background-color: #111827; /* bg-gray-900 for cards */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            cursor: pointer;
+            width: 100%; /* Ensure cards take full width in their column */
+        }
+        .video-thumbnail-card:hover {
+            transform: translateY(-5px);
+            /* Darker shadow for better visibility on black background */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+        }
+        /* Aspect ratio for embedded videos */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem; /* rounded-xl */
+            background-color: #0a0a0a; /* Very dark background for player area */
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            object-fit: contain; /* Ensures video fits within bounds without cropping */
+        }
+        /* Style for active thumbnail */
+        .video-thumbnail-card.active {
+            border: 3px solid #60a5fa; /* Blue border for active video */
+            box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.5); /* Glowing effect */
+        }
+        /* Styling for the quality selector dropdown */
+        .quality-selector {
+            background-color: #111827; /* Dark background */
+            color: #e2e8f0; /* Light text */
+            border: 1px solid #4a5568; /* Subtle border */
+            border-radius: 0.5rem; /* Rounded corners */
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E"); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem; /* Space for custom arrow */
+        }
+        .quality-selector:focus {
+            outline: none;
+            border-color: #60a5fa; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-100 antialiased">
+
+    <header class="bg-gray-950 shadow-lg py-4 px-6 md:px-12 flex justify-center items-center rounded-b-xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-400">My Personal Video Collection</h1>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8 flex flex-col lg:flex-row gap-8">
+
+        <section class="lg:w-3/4 py-8">
+            <h2 id="now-playing-title" class="text-3xl md:text-4xl font-bold mb-6 text-blue-300">Now Playing: Video #1</h2>
+            <div class="video-container mb-4"> <video id="main-video-player" controls autoplay playsinline controlsList="nodownload">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="flex justify-end mb-8"> <select id="quality-selector" class="quality-selector">
+                    </select>
+            </div>
+        </section>
+
+        <aside class="lg:w-1/4 py-8">
+            <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">All Videos</h2>
+            <div id="video-list-container" class="flex flex-col items-center space-y-6">
+                </div>
+        </aside>
+
+    </main>
+
+    <footer class="bg-gray-950 py-6 px-6 md:px-12 mt-12 rounded-t-xl text-center text-gray-400">
+        <p>© 2025 My Personal Collection. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // IMPORTANT: These URLs now use relative paths and correctly URL-encode '#' as '%23' and '$' as '%24'.
+        // Ensure your video files are named like '#1.mp4', '#2.mp4', etc.,
+        // and your thumbnail files are named like '$1.jpg', '$2.jpg', etc.
+        const videosData = [
+            {
+                id: 'video1',
+                name: 'Video #1',
+                qualities: [
+                    // For example: 'videos/video%231_1080p.mp4' for a specific quality version
+                    { label: '1080p', url: 'videos/%231.mp4' }, 
+                    { label: '720p', url: 'videos/%231.mp4' }, // If you have a separate 720p version, change this URL
+                    { label: '480p', url: 'videos/%231.mp4' }  // If you have a separate 480p version, change this URL
+                ],
+                thumbnailUrl: 'thumbnails/%241.jpg' // e.g., 'thumbnails/thumbnail%231.jpg'
+            },
+            {
+                id: 'video2',
+                name: 'Video #2',
+                qualities: [
+                    { label: '1080p', url: 'videos/%232.mp4' },
+                    { label: '720p', url: 'videos/%232.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%242.jpg'
+            },
+            {
+                id: 'video3',
+                name: 'Video #3',
+                qualities: [
+                    { label: '1080p', url: 'videos/%233.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%243.jpg'
+            },
+            {
+                id: 'video4',
+                name: 'Video #4',
+                qualities: [
+                    { label: '1080p', url: 'videos/%234.mp4' },
+                    { label: '720p', url: 'videos/%234.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%244.jpg'
+            },
+            {
+                id: 'video5',
+                name: 'Video #5',
+                qualities: [
+                    { label: '1080p', url: 'videos/%235.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%245.jpg'
+            },
+            {
+                id: 'video6',
+                name: 'Video #6',
+                qualities: [
+                    { label: '1080p', url: 'videos/%236.mp4' },
+                    { label: '720p', url: 'videos/%236.mp4' },
+                    { label: '480p', url: 'videos/%236.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%246.jpg'
+            },
+            {
+                id: 'video7',
+                name: 'Video #7',
+                qualities: [
+                    { label: '1080p', url: 'videos/%237.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%247.jpg'
+            },
+            {
+                id: 'video8',
+                name: 'Video #8',
+                qualities: [
+                    { label: '1080p', url: 'videos/%238.mp4' },
+                    { label: '720p', url: 'videos/%238.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%248.jpg'
+            },
+            {
+                id: 'video9',
+                name: 'Video #9',
+                qualities: [
+                    { label: '1080p', url: 'videos/%239.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%249.jpg'
+            },
+            {
+                id: 'video10',
+                name: 'Video #10',
+                qualities: [
+                    { label: '1080p', url: 'videos/%2310.mp4' },
+                    { label: '720p', url: 'videos/%2310.mp4' }
+                ],
+                thumbnailUrl: 'thumbnails/%2410.jpg'
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainVideoPlayer = document.getElementById('main-video-player');
+            const nowPlayingTitle = document.getElementById('now-playing-title');
+            const videoListContainer = document.getElementById('video-list-container');
+            const qualitySelector = document.getElementById('quality-selector');
+            let currentActiveThumbnail = null; // To keep track of the currently active thumbnail
+            let currentVideoData = null; // To store data of the currently playing video
+
+            // Function to load and play a video
+            function loadVideo(video, selectedQualityLabel = null) {
+                currentVideoData = video; // Store current video data
+                nowPlayingTitle.textContent = `Now Playing: ${video.name}`;
+
+                // Populate quality selector
+                qualitySelector.innerHTML = ''; // Clear previous options
+                video.qualities.forEach(quality => {
+                    const option = document.createElement('option');
+                    option.value = quality.url;
+                    option.textContent = quality.label;
+                    qualitySelector.appendChild(option);
+                });
+
+                let videoToPlayUrl = video.qualities[0].url; // Default to first quality
+                if (selectedQualityLabel) {
+                    // Try to find the selected quality's URL
+                    const foundQuality = video.qualities.find(q => q.label === selectedQualityLabel);
+                    if (foundQuality) {
+                        videoToPlayUrl = foundQuality.url;
+                        qualitySelector.value = foundQuality.url; // Set dropdown to selected quality
+                    }
+                } else if (qualitySelector.options.length > 0) {
+                    // If no specific quality selected, ensure dropdown shows the first option
+                    qualitySelector.value = video.qualities[0].url;
+                }
+
+                const currentTime = mainVideoPlayer.currentTime; // Store current time
+
+                mainVideoPlayer.src = videoToPlayUrl;
+                mainVideoPlayer.load(); // Load the new video source
+                
+                // Set current time after loading, before playing
+                mainVideoPlayer.currentTime = currentTime; 
+
+                mainVideoPlayer.play().catch(error => {
+                    console.warn("Autoplay was prevented:", error);
+                    // Inform user if autoplay fails (e.g., browser policy)
+                    // You might want to add a message on the UI here, e.g., "Click play to start video"
+                });
+
+                // Update active thumbnail styling
+                if (currentActiveThumbnail) {
+                    currentActiveThumbnail.classList.remove('active');
+                }
+                const newActiveThumbnail = document.querySelector(`.video-thumbnail-card[data-video-id="${video.id}"]`);
+                if (newActiveThumbnail) {
+                    newActiveThumbnail.classList.add('active');
+                    currentActiveThumbnail = newActiveThumbnail;
+                }
+            }
+
+            // Event listener for quality selector change
+            qualitySelector.addEventListener('change', () => {
+                if (currentVideoData) {
+                    const selectedUrl = qualitySelector.value;
+                    const selectedQuality = currentVideoData.qualities.find(q => q.url === selectedUrl);
+                    if (selectedQuality) {
+                        const currentTime = mainVideoPlayer.currentTime; // Get current time before changing source
+                        mainVideoPlayer.src = selectedQuality.url;
+                        mainVideoPlayer.load();
+                        mainVideoPlayer.currentTime = currentTime; // Set time
+                        mainVideoPlayer.play().catch(error => {
+                            console.warn("Autoplay after quality change prevented:", error);
+                        });
+                    }
+                }
+            });
+
+
+            // Populate video thumbnails
+            videosData.forEach(video => {
+                const thumbnailCard = document.createElement('div');
+                thumbnailCard.className = 'video-thumbnail-card p-3 max-w-xs'; // Adjusted padding and max-width for thumbnails
+                thumbnailCard.dataset.videoId = video.id;
+                thumbnailCard.innerHTML = `
+                    <img src="${video.thumbnailUrl}" alt="${video.name}" class="w-full h-auto rounded-lg mb-2 object-cover">
+                    <h3 class="text-lg font-semibold text-gray-100 mb-1">${video.name}</h3>
+                `;
+                videoListContainer.appendChild(thumbnailCard);
+
+                // Add click listener to each thumbnail
+                thumbnailCard.addEventListener('click', () => loadVideo(video));
+            });
+
+            // Automatically load and play the first video on page load
+            if (videosData.length > 0) {
+                loadVideo(videosData[0]);
+            }
+        });
+    </script>
+
+</body>
+</html>
