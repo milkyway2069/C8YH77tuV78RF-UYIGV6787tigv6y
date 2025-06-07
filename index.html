@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Video Downloads</title>
+    <title>My Personal Video Links</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
@@ -15,35 +15,80 @@
             background-color: #000000; /* Dark black background */
             color: #e2e8f0; /* Light text for contrast */
         }
-        /* Style for download links */
-        .download-link-card {
+        /* Style for the clickable video "tabs" */
+        .video-card {
             background-color: #111827; /* Dark gray for cards */
             border-radius: 0.75rem; /* rounded-xl */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
             padding: 1.5rem;
             width: 100%;
             max-width: 600px; /* Limit width for better readability */
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Align text to start */
-            text-decoration: none; /* Remove underline from anchor tag */
+            align-items: flex-start;
+            cursor: pointer; /* Indicate it's clickable */
+            position: relative; /* For the link/button positioning */
         }
-        .download-link-card:hover {
+        .video-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 10px 20px -5px rgba(0, 0, 0, 0.3);
             background-color: #1f2937; /* Slightly lighter on hover */
         }
-        .download-link-card h3 {
-            color: #60a5fa; /* Blue color for link name */
+        .video-card h3 {
+            color: #60a5fa; /* Blue color for video name */
             font-size: 1.5rem; /* Larger font for name */
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-        .download-link-card p {
-            color: #9ca3af; /* Gray color for URL text */
+        /* Styling for the hidden link container */
+        .link-container {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.4s ease-out, max-height 0.4s ease-in-out;
+            margin-top: 1rem; /* Space between title and link */
+            width: 100%;
+            display: flex;
+            flex-direction: column; /* Stack link and button */
+            gap: 0.75rem; /* Space between link and button */
+        }
+        .link-container.active {
+            opacity: 1;
+            max-height: 100px; /* Adjust as needed to fit content */
+        }
+        .link-text {
+            background-color: #0a0a0a; /* Darker background for the link */
+            color: #a0aec0; /* Lighter gray for the URL text */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
             font-size: 0.9rem;
             word-break: break-all; /* Ensures URL wraps if too long */
+            text-align: left;
+        }
+        .copy-button {
+            background-color: #4A90E2; /* Blue button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            align-self: flex-end; /* Align button to the right within the flex column */
+        }
+        .copy-button:hover {
+            background-color: #2A64B6; /* Darker blue on hover */
+        }
+        .copy-message {
+            color: #48bb78; /* Green for success message */
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: right;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+        .copy-message.show {
+            opacity: 1;
         }
     </style>
 </head>
@@ -51,18 +96,18 @@
 
     <!-- Header Section -->
     <header class="bg-gray-950 shadow-lg py-4 px-6 md:px-12 flex justify-center items-center rounded-b-xl">
-        <h1 class="text-3xl md:text-4xl font-bold text-blue-400">My Video Downloads</h1>
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-400">My Video Links</h1>
     </header>
 
     <main class="container mx-auto p-4 md:p-8">
 
         <section class="py-8 text-center">
-            <h2 class="text-4xl font-bold text-center mb-12 text-blue-300">Download Videos</h2>
+            <h2 class="text-4xl font-bold text-center mb-12 text-blue-300">Click to Reveal & Copy Video Links</h2>
             <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-12">
-                Click on any video link below to download the file directly to your system.
+                Select a video below to reveal its direct download link, then use the "Copy Link" button to save it to your clipboard.
             </p>
-            <div id="download-links-container" class="flex flex-col items-center space-y-6">
-                <!-- Download links will be dynamically loaded here by JavaScript -->
+            <div id="video-links-container" class="flex flex-col items-center space-y-6">
+                <!-- Video link cards will be dynamically loaded here by JavaScript -->
             </div>
         </section>
 
@@ -74,79 +119,137 @@
     </footer>
 
     <script>
-        // IMPORTANT: Replace the 'url' values below with your actual direct Dropbox links.
-        // Remember to change '&dl=0' to '&dl=1' at the end of each Dropbox share link,
-        // to ensure it triggers a download, not a preview.
+        // IMPORTANT: Replace the 'downloadUrl' values below with your actual direct video links.
+        // Google Drive direct links (e.g., https://drive.google.com/uc?id=YOUR_FILE_ID&export=download) are often reliable.
+        // Dropbox 'scl/fi' links may still cause issues even with dl=1 if accessed directly in browser to download.
         const videosData = [
             {
                 id: 'video1',
                 name: 'Video #1',
-                downloadUrl: 'dl.dropboxusercontent.com/scl/fi/1ynu01u32rmmjz7sbth6v/1.mp4?rlkey=1c9l7wgte0sunlg82gc994z0w&st=ekp3rysu&dl=1' 
+                downloadUrl: 'dl.dropboxusercontent.com/scl/fi/1ynu01u32rmmjz7sbth6v/1.mp4?rlkey=1c9l7wgte0sunlg82gc994z0w&st=ekp3rysu&dl=1d' 
             },
             {
                 id: 'video2',
                 name: 'Video #2',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/2nd_file_id/%232.mp4?rlkey=2nd_rlkey&st=2nd_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_2&export=download' 
             },
             {
                 id: 'video3',
                 name: 'Video #3',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/3rd_file_id/%233.mp4?rlkey=3rd_rlkey&st=3rd_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_3&export=download' 
             },
             {
                 id: 'video4',
                 name: 'Video #4',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/4th_file_id/%234.mp4?rlkey=4th_rlkey&st=4th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_4&export=download' 
             },
             {
                 id: 'video5',
                 name: 'Video #5',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/5th_file_id/%235.mp4?rlkey=5th_rlkey&st=5th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_5&export=download' 
             },
             {
                 id: 'video6',
                 name: 'Video #6',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/6th_file_id/%236.mp4?rlkey=6th_rlkey&st=6th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_6&export=download' 
             },
             {
                 id: 'video7',
                 name: 'Video #7',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/7th_file_id/%237.mp4?rlkey=7th_rlkey&st=7th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_7&export=download' 
             },
             {
                 id: 'video8',
                 name: 'Video #8',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/8th_file_id/%238.mp4?rlkey=8th_rlkey&st=8th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_8&export=download' 
             },
             {
                 id: 'video9',
                 name: 'Video #9',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/9th_file_id/%239.mp4?rlkey=9th_rlkey&st=9th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_9&export=download' 
             },
             {
                 id: 'video10',
                 name: 'Video #10',
-                downloadUrl: 'https://www.dropbox.com/scl/fi/10th_file_id/%2310.mp4?rlkey=10th_rlkey&st=10th_st_key&dl=1' 
+                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_10&export=download' 
             }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
-            const downloadLinksContainer = document.getElementById('download-links-container');
-            
-            // Populate download links
-            videosData.forEach(video => {
-                const linkCard = document.createElement('a');
-                linkCard.href = video.downloadUrl;
-                linkCard.className = 'download-link-card';
-                // The 'download' attribute suggests a filename to the browser
-                // It's good practice to set it, though the server's Content-Disposition header ultimately decides.
-                linkCard.download = video.name.replace(/ /g, '_') + '.mp4'; // Suggests 'Video_#1.mp4' as filename
+            const videoLinksContainer = document.getElementById('video-links-container');
+            let activeLinkCard = null; // To keep track of the currently open card
 
-                linkCard.innerHTML = `
+            // Function to copy text to clipboard
+            function copyToClipboard(text, messageElement) {
+                // Using document.execCommand('copy') as navigator.clipboard.writeText()
+                // might be restricted in some iframe environments or for local file access.
+                const tempInput = document.createElement('textarea');
+                tempInput.value = text;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        messageElement.textContent = "Copied!";
+                        messageElement.classList.add('show');
+                        setTimeout(() => {
+                            messageElement.classList.remove('show');
+                        }, 2000);
+                    } else {
+                        messageElement.textContent = "Copy failed.";
+                        messageElement.classList.add('show');
+                        setTimeout(() => {
+                            messageElement.classList.remove('show');
+                        }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    messageElement.textContent = "Copy failed. Try manually.";
+                    messageElement.classList.add('show');
+                    setTimeout(() => {
+                        messageElement.classList.remove('show');
+                    }, 2000);
+                }
+                document.body.removeChild(tempInput);
+            }
+
+            // Populate video link cards
+            videosData.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                videoCard.dataset.videoId = video.id;
+
+                videoCard.innerHTML = `
                     <h3>${video.name}</h3>
-                    <p>${video.downloadUrl}</p>
+                    <div class="link-container">
+                        <span class="link-text">${video.downloadUrl}</span>
+                        <button class="copy-button">Copy Link</button>
+                        <span class="copy-message"></span>
+                    </div>
                 `;
-                downloadLinksContainer.appendChild(linkCard);
+                videoLinksContainer.appendChild(videoCard);
+
+                const linkContainer = videoCard.querySelector('.link-container');
+                const linkText = videoCard.querySelector('.link-text');
+                const copyButton = videoCard.querySelector('.copy-button');
+                const copyMessage = videoCard.querySelector('.copy-message');
+
+                videoCard.addEventListener('click', () => {
+                    // Close the currently active card if it's different from the clicked one
+                    if (activeLinkCard && activeLinkCard !== linkContainer) {
+                        activeLinkCard.classList.remove('active');
+                        activeLinkCard.parentNode.querySelector('.copy-message').classList.remove('show'); // Hide message of previous card
+                    }
+
+                    // Toggle active class on the clicked card's link container
+                    linkContainer.classList.toggle('active');
+                    activeLinkCard = linkContainer.classList.contains('active') ? linkContainer : null;
+                });
+
+                copyButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent card from toggling when button is clicked
+                    copyToClipboard(linkText.textContent, copyMessage);
+                });
             });
         });
     </script>
