@@ -55,7 +55,7 @@
         }
         .link-container.active {
             opacity: 1;
-            max-height: 150px; /* Adjusted to accommodate button and message */
+            max-height: 250px; /* Increased to ensure enough space for the large button and message */
         }
         .link-text {
             background-color: #0a0a0a; /* Darker background for the link */
@@ -210,8 +210,8 @@
                     messageElement.textContent = "Copy failed. Try manually.";
                     messageElement.classList.add('show');
                     setTimeout(() => {
-                        messageElement.classList.remove('show');
-                    }, 2000);
+                            messageElement.classList.remove('show');
+                        }, 2000);
                 }
                 document.body.removeChild(tempInput);
             }
