@@ -55,7 +55,7 @@
         }
         .link-container.active {
             opacity: 1;
-            max-height: 150px; /* Adjusted to accommodate two buttons */
+            max-height: 150px; /* Adjusted to accommodate button and message */
         }
         .link-text {
             background-color: #0a0a0a; /* Darker background for the link */
@@ -66,13 +66,7 @@
             word-break: break-all; /* Ensures URL wraps if too long */
             text-align: left;
         }
-        .button-group {
-            display: flex;
-            gap: 1rem; /* Space between buttons */
-            width: 100%;
-            justify-end; /* Align buttons to the right */
-        }
-        .copy-button, .open-button {
+        .copy-button {
             background-color: #4A90E2; /* Blue button */
             color: white;
             padding: 1rem 2rem; /* Made button bigger */
@@ -81,18 +75,13 @@
             cursor: pointer;
             transition: background-color 0.3s ease-in-out;
             font-size: 1.1rem; /* Slightly larger font */
-            flex-grow: 1; /* Allow buttons to grow */
+            width: 100%; /* Make button full width of its container */
             max-width: 200px; /* Limit max width for a nicer look on larger screens */
             text-align: center; /* Center text within buttons */
+            align-self: flex-end; /* Align button to the right within the flex column */
         }
-        .copy-button:hover, .open-button:hover {
+        .copy-button:hover {
             background-color: #2A64B6; /* Darker blue on hover */
-        }
-        .open-button {
-            background-color: #28a745; /* Green for "Open Link" */
-        }
-        .open-button:hover {
-            background-color: #218838; /* Darker green on hover */
         }
         .copy-message {
             color: #48bb78; /* Green for success message */
@@ -117,9 +106,9 @@
     <main class="container mx-auto p-4 md:p-8">
 
         <section class="py-8 text-center">
-            <h2 class="text-4xl font-bold text-center mb-12 text-blue-300">Click to Reveal & Copy/Open Video Links</h2>
+            <h2 class="text-4xl font-bold text-center mb-12 text-blue-300">Click to Reveal & Copy Video Links</h2>
             <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-12">
-                Select a video below to reveal its direct download link, then use the "Copy Link" or "Open Link" button.
+                Select a video below to reveal its direct download link, then use the "Copy Link" button to save it to your clipboard for manual pasting.
             </p>
             <div id="video-links-container" class="flex flex-col items-center space-y-6">
                 <!-- Video link cards will be dynamically loaded here by JavaScript -->
@@ -135,7 +124,7 @@
 
     <script>
         // IMPORTANT: Replace the 'downloadUrl' values below with your actual direct video links.
-        // Google Drive direct links (e.g., https://drive.google.com/uc?id=YOUR_FILE_ID&export=download) are often reliable for direct downloads.
+        // Google Drive direct links (e.g., https://drive.google.com/uc?id=YOUR_FILE_ID&export=download) are often reliable.
         // Dropbox 'scl/fi' links with &dl=1 often trigger downloads when opened in a new tab.
         const videosData = [
             {
@@ -204,7 +193,7 @@
                 try {
                     const successful = document.execCommand('copy');
                     if (successful) {
-                        messageElement.textContent = "Copied!";
+                        messageElement.textContent = "Copied! ✅"; // Added tick mark
                         messageElement.classList.add('show');
                         setTimeout(() => {
                             messageElement.classList.remove('show');
@@ -237,10 +226,7 @@
                     <h3>${video.name}</h3>
                     <div class="link-container">
                         <span class="link-text">${video.downloadUrl}</span>
-                        <div class="button-group">
-                            <button class="copy-button">Copy Link</button>
-                            <button class="open-button">Open Link</button>
-                        </div>
+                        <button class="copy-button">Copy Link</button>
                         <span class="copy-message"></span>
                     </div>
                 `;
@@ -249,7 +235,6 @@
                 const linkContainer = videoCard.querySelector('.link-container');
                 const linkText = videoCard.querySelector('.link-text');
                 const copyButton = videoCard.querySelector('.copy-button');
-                const openButton = videoCard.querySelector('.open-button');
                 const copyMessage = videoCard.querySelector('.copy-message');
 
                 videoCard.addEventListener('click', () => {
@@ -267,12 +252,6 @@
                 copyButton.addEventListener('click', (event) => {
                     event.stopPropagation(); // Prevent card from toggling when button is clicked
                     copyToClipboard(linkText.textContent, copyMessage);
-                });
-
-                openButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Prevent card from toggling when button is clicked
-                    // This will open the link in a new tab, which should trigger the download.
-                    window.open(linkText.textContent, '_blank'); 
                 });
             });
         });
