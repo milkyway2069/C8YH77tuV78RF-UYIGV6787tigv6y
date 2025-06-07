@@ -55,7 +55,7 @@
         }
         .link-container.active {
             opacity: 1;
-            max-height: 100px; /* Adjust as needed to fit content */
+            max-height: 150px; /* Adjusted to accommodate two buttons */
         }
         .link-text {
             background-color: #0a0a0a; /* Darker background for the link */
@@ -66,7 +66,13 @@
             word-break: break-all; /* Ensures URL wraps if too long */
             text-align: left;
         }
-        .copy-button {
+        .button-group {
+            display: flex;
+            gap: 1rem; /* Space between buttons */
+            width: 100%;
+            justify-end; /* Align buttons to the right */
+        }
+        .copy-button, .open-button {
             background-color: #4A90E2; /* Blue button */
             color: white;
             padding: 1rem 2rem; /* Made button bigger */
@@ -74,13 +80,19 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s ease-in-out;
-            align-self: flex-end; /* Align button to the right within the flex column */
             font-size: 1.1rem; /* Slightly larger font */
-            width: 100%; /* Make button full width of its container */
+            flex-grow: 1; /* Allow buttons to grow */
             max-width: 200px; /* Limit max width for a nicer look on larger screens */
+            text-align: center; /* Center text within buttons */
         }
-        .copy-button:hover {
+        .copy-button:hover, .open-button:hover {
             background-color: #2A64B6; /* Darker blue on hover */
+        }
+        .open-button {
+            background-color: #28a745; /* Green for "Open Link" */
+        }
+        .open-button:hover {
+            background-color: #218838; /* Darker green on hover */
         }
         .copy-message {
             color: #48bb78; /* Green for success message */
@@ -105,9 +117,9 @@
     <main class="container mx-auto p-4 md:p-8">
 
         <section class="py-8 text-center">
-            <h2 class="text-4xl font-bold text-center mb-12 text-blue-300">Click to Reveal & Copy Video Links</h2>
+            <h2 class="text-4xl font-bold text-center mb-12 text-blue-300">Click to Reveal & Copy/Open Video Links</h2>
             <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-12">
-                Select a video below to reveal its direct download link, then use the "Copy Link" button to save it to your clipboard.
+                Select a video below to reveal its direct download link, then use the "Copy Link" or "Open Link" button.
             </p>
             <div id="video-links-container" class="flex flex-col items-center space-y-6">
                 <!-- Video link cards will be dynamically loaded here by JavaScript -->
@@ -123,69 +135,68 @@
 
     <script>
         // IMPORTANT: Replace the 'downloadUrl' values below with your actual direct video links.
-        // Google Drive direct links (e.g., https://drive.google.com/uc?id=YOUR_FILE_ID&export=download) are often reliable.
-        // Dropbox 'scl/fi' links may still cause issues even with dl=1 if accessed directly in browser to download.
+        // Google Drive direct links (e.g., https://drive.google.com/uc?id=YOUR_FILE_ID&export=download) are often reliable for direct downloads.
+        // Dropbox 'scl/fi' links with &dl=1 often trigger downloads when opened in a new tab.
         const videosData = [
             {
                 id: 'video1',
                 name: 'Video #1',
-                downloadUrl: 'dl.dropboxusercontent.com/scl/fi/1ynu01u32rmmjz7sbth6v/1.mp4?rlkey=1c9l7wgte0sunlg82gc994z0w&st=ekp3rysu&dl=1' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/1ynu01u32rmmjz7sbth6v/%231.mp4?rlkey=brlivid7v58aaqheyuhumilqx&st=ekp3rysu&dl=1' 
             },
             {
                 id: 'video2',
                 name: 'Video #2',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_2&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/2nd_file_id/%232.mp4?rlkey=2nd_rlkey&st=2nd_st_key&dl=1' 
             },
             {
                 id: 'video3',
                 name: 'Video #3',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_3&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/3rd_file_id/%233.mp4?rlkey=3rd_rlkey&st=3rd_st_key&dl=1' 
             },
             {
                 id: 'video4',
                 name: 'Video #4',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_4&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/4th_file_id/%234.mp4?rlkey=4th_rlkey&st=4th_st_key&dl=1' 
             },
             {
                 id: 'video5',
                 name: 'Video #5',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_5&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/5th_file_id/%235.mp4?rlkey=5th_rlkey&st=5th_st_key&dl=1' 
             },
             {
                 id: 'video6',
                 name: 'Video #6',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_6&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/6th_file_id/%236.mp4?rlkey=6th_rlkey&st=6th_st_key&dl=1' 
             },
             {
                 id: 'video7',
                 name: 'Video #7',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_7&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/7th_file_id/%237.mp4?rlkey=7th_rlkey&st=7th_st_key&dl=1' 
             },
             {
                 id: 'video8',
                 name: 'Video #8',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_8&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/8th_file_id/%238.mp4?rlkey=8th_rlkey&st=8th_st_key&dl=1' 
             },
             {
                 id: 'video9',
                 name: 'Video #9',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_9&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/9th_file_id/%239.mp4?rlkey=9th_rlkey&st=9th_st_key&dl=1' 
             },
             {
                 id: 'video10',
                 name: 'Video #10',
-                downloadUrl: 'https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID_10&export=download' 
+                downloadUrl: 'https://www.dropbox.com/scl/fi/10th_file_id/%2310.mp4?rlkey=10th_rlkey&st=10th_st_key&dl=1' 
             }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
             const videoLinksContainer = document.getElementById('video-links-container');
-            let activeLinkCard = null; // To keep track of the currently open card
+            let activeLinkContainer = null; // To keep track of the currently open link container
 
             // Function to copy text to clipboard
             function copyToClipboard(text, messageElement) {
-                // Using document.execCommand('copy') as navigator.clipboard.writeText()
-                // might be restricted in some iframe environments or for local file access.
+                // Using document.execCommand('copy') for broader compatibility
                 const tempInput = document.createElement('textarea');
                 tempInput.value = text;
                 document.body.appendChild(tempInput);
@@ -226,7 +237,10 @@
                     <h3>${video.name}</h3>
                     <div class="link-container">
                         <span class="link-text">${video.downloadUrl}</span>
-                        <button class="copy-button">Copy Link</button>
+                        <div class="button-group">
+                            <button class="copy-button">Copy Link</button>
+                            <button class="open-button">Open Link</button>
+                        </div>
                         <span class="copy-message"></span>
                     </div>
                 `;
@@ -235,23 +249,30 @@
                 const linkContainer = videoCard.querySelector('.link-container');
                 const linkText = videoCard.querySelector('.link-text');
                 const copyButton = videoCard.querySelector('.copy-button');
+                const openButton = videoCard.querySelector('.open-button');
                 const copyMessage = videoCard.querySelector('.copy-message');
 
                 videoCard.addEventListener('click', () => {
                     // Close the currently active card if it's different from the clicked one
-                    if (activeLinkCard && activeLinkCard !== linkContainer) {
-                        activeLinkCard.classList.remove('active');
-                        activeLinkCard.parentNode.querySelector('.copy-message').classList.remove('show'); // Hide message of previous card
+                    if (activeLinkContainer && activeLinkContainer !== linkContainer) {
+                        activeLinkContainer.classList.remove('active');
+                        activeLinkContainer.querySelector('.copy-message').classList.remove('show'); // Hide message of previous card
                     }
 
                     // Toggle active class on the clicked card's link container
                     linkContainer.classList.toggle('active');
-                    activeLinkCard = linkContainer.classList.contains('active') ? linkContainer : null;
+                    activeLinkContainer = linkContainer.classList.contains('active') ? linkContainer : null;
                 });
 
                 copyButton.addEventListener('click', (event) => {
                     event.stopPropagation(); // Prevent card from toggling when button is clicked
                     copyToClipboard(linkText.textContent, copyMessage);
+                });
+
+                openButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent card from toggling when button is clicked
+                    // This will open the link in a new tab, which should trigger the download.
+                    window.open(linkText.textContent, '_blank'); 
                 });
             });
         });
